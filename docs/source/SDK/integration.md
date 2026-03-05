@@ -17,6 +17,12 @@ Building a dashboard or a non-Python controller? The Daemon exposes full control
 * **Get State:** `GET /api/state/full`
 * **WebSocket:** `ws://localhost:8000/api/state/ws/full`
 
+## MCP Server (OpenClaw, Claude Desktop, Cursor)
+
+Control the robot from any MCP-compatible AI assistant. The daemon exposes an optional MCP server — one flag to enable, one command to connect.
+
+See the [MCP Server guide](mcp.md) for setup and the full tool list.
+
 ## AI Experimentation Tips
 
 * **Conversation Demo:** Check out our reference implementation combining VAD (Voice Activity Detection), LLMs, and TTS: [reachy_mini_conversation_demo](https://github.com/pollen-robotics/reachy_mini_conversation_demo).

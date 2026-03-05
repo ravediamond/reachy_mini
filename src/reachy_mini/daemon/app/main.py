@@ -82,6 +82,8 @@ class Args:
     preload_datasets: bool = False
     dataset_update_interval_hours: float = 24.0  # 0 to disable periodic updates
 
+    enable_mcp: bool = False
+
     robot_name: str = "reachy_mini"
 
     fastapi_host: str = "0.0.0.0"
@@ -160,6 +162,11 @@ def create_app(args: Args, health_check_event: asyncio.Event | None = None) -> F
                     hardware_config_filepath=args.hardware_config_filepath,
                 )
 
+            if args.enable_mcp:
+                from .routers import mcp_server
+
+                mcp_server.init(lambda: app.state.daemon.backend)
+
             # Register mDNS service only after the daemon is ready
             mdns.register()
 
@@ -225,6 +232,11 @@ def create_app(args: Args, health_check_event: asyncio.Event | None = None) -> F
         app.include_router(logs.router)
         app.include_router(update.router)
         app.include_router(wifi_config.router)
+
+    if args.enable_mcp:
+        from .routers import mcp_server
+
+        app.mount("/mcp", mcp_server.mcp.http_app())
 
     app.include_router(router)
     app.include_router(sdk_ws.router)
@@ -560,6 +572,13 @@ def main() -> None:
         choices=["Placo", "NN", "AnalyticalKinematics"],
         help="Set the kinematics engine (default: AnalyticalKinematics).",
     )
+    parser.add_argument(
+        "--enable-mcp",
+        action="store_true",
+        default=default_args.enable_mcp,
+        help="Enable MCP server at /mcp (requires reachy_mini[openclaw]).",
+    )
+
     # FastAPI server options
     parser.add_argument(
         "--fastapi-host",
